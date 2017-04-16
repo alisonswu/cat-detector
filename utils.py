@@ -74,6 +74,25 @@ def tensor2bboxes(tensor, H = 448, W = 448, cellsize = 64):
 
 
 
+def bboxes2tensor(bboxes, H=448, W=448, cellsize=64):
+    target = np.zeros([int(H/cellsize),int(W/cellsize),5])
+    for _, bbox in enumerate(bboxes):
+        # find the center of object
+        cx = (bbox[0]+bbox[2])/2
+        cy = (bbox[1]+bbox[3])/2
+        # the center falls in (i,j) cell
+        i = int(cy/cellsize)
+        j = int(cx/cellsize)
+        # set confidence 
+        target[i,j,4] = 1
+        # set center location adjustment to the grid cell, scaled by cellsize
+        target[i,j,0] = (cx - j*cellsize)/cellsize 
+        target[i,j,1] = (cy - i*cellsize)/cellsize
+        # set height,width scaled by H,W
+        target[i,j,2] = (bbox[3] - bbox[1])/H
+        target[i,j,3] = (bbox[2] - bbox[0])/W
+    return target
+
 
 
 
