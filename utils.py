@@ -3,7 +3,7 @@ from future import division
 import cv2
 import numpy as np
 import random
-
+from scipy import misc
 
 #-----------------------------------------------------
 #     Given resized img and bounding boxes, plot it.
