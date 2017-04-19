@@ -2,6 +2,7 @@
 from future import division
 import cv2
 import numpy as np
+import random
 
 
 #-----------------------------------------------------
@@ -94,6 +95,41 @@ def bboxes2tensor(bboxes, H=448, W=448, cellsize=64):
     return target
 
 
-
+def img_aug(img, bboxes, max_scale = 0.2, max_saturation =0.1, max_exposure = 0.5):
+    h, w, _ = img.shape
+    # scale up image 
+    scale = np.random.uniform(1.0, (1 + max_scale)**0.5)
+    h_new, w_new = int(round(h*scale)), int(round(w*scale))
+    img = cv2.resize(img,(w_new, h_new))
+    # random crop scaled image to original size 
+    crop_x = random.choice(range((w_new-w+1)))
+    crop_y = random.choice(range((h_new-h+1)))
+    img = img[crop_y : (crop_y + h), crop_x : (crop_x + w)]
+    # adjust bounding boxes 
+    bboxes = bboxes*scale 
+    bboxes[:,[0,2]] -= crop_x
+    bboxes[:,[1,3]] -= crop_y
+    bboxes = bboxes.astype(int)
+    # threshold bounding boxes to be inside image 
+    bboxes[:,0][bboxes[:,0]<0] = 0
+    bboxes[:,1][bboxes[:,1]<0] = 0
+    bboxes[:,2][bboxes[:,2]>w-1] = w-1
+    bboxes[:,3][bboxes[:,3]>h-1] = h-1    
+    # random horizontal flip 
+    flip = random.choice([0,1])
+    if flip: 
+        img = cv2.flip(img, 1)
+        bboxes[:,[0,2]] = w-1 - bboxes[:,[0,2]]  
+    # scale image value to [0,1]
+    img = img/255.0
+    # adjust saturation
+    scale1 = np.random.uniform(1-max_saturation,1+max_saturation,3)/(1+max_saturation )
+    img = img * scale1
+    # adjust exposure 
+    scale2 = np.random.uniform(1-max_exposure,1+max_exposure)
+    img = np.power(img, scale2)
+    # adjust image value to [0,225]
+    img = np.array(img * 255., np.uint8)
+    return img, bboxes
 
 
