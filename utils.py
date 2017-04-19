@@ -3,7 +3,7 @@ from future import division
 import cv2
 import numpy as np
 import random
-
+from scipy import misc
 
 #-----------------------------------------------------
 #     Given resized img and bounding boxes, plot it.
@@ -100,7 +100,7 @@ def img_aug(img, bboxes, max_scale = 0.2, max_saturation =0.1, max_exposure = 0.
     # scale up image 
     scale = np.random.uniform(1.0, (1 + max_scale)**0.5)
     h_new, w_new = int(round(h*scale)), int(round(w*scale))
-    img = cv2.resize(img,(w_new, h_new))
+    img = misc.imresize(img, (h_new,w_new,-1))
     # random crop scaled image to original size 
     crop_x = random.choice(range((w_new-w+1)))
     crop_y = random.choice(range((h_new-h+1)))
@@ -118,7 +118,7 @@ def img_aug(img, bboxes, max_scale = 0.2, max_saturation =0.1, max_exposure = 0.
     # random horizontal flip 
     flip = random.choice([0,1])
     if flip: 
-        img = cv2.flip(img, 1)
+        img = np.fliplr(img)
         bboxes[:,[0,2]] = w-1 - bboxes[:,[0,2]]  
     # scale image value to [0,1]
     img = img/255.0
