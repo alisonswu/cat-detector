@@ -119,7 +119,7 @@ def img_aug(img, bboxes, max_scale = 0.2, max_saturation =0.1, max_exposure = 0.
     flip = random.choice([0,1])
     if flip: 
         img = np.fliplr(img)
-        bboxes[:,[0,2]] = w-1 - bboxes[:,[0,2]]  
+        bboxes[:,[2,0]] = w-1 - bboxes[:,[0,2]]  
     # scale image value to [0,1]
     img = img/255.0
     # adjust saturation
