@@ -79,7 +79,7 @@ for epoch in range(2):
         if use_gpu:
             inputs, targets = Variable(inputs.float().cuda()), Variable(targets.float().cuda())
         else:
-        	inputs, targets = Variable(inputs.float()), Variable(targets.float())
+            inputs, targets = Variable(inputs.float()), Variable(targets.float())
 
         # zero the parameter gradients
         optimizer.zero_grad()
