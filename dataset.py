@@ -17,6 +17,7 @@ class CustomDataset(data.Dataset):
         image_name = self.data_dir + '/JPEGImages/' + ind + '.jpg'       
         ori_img = misc.imread(image_name)
         gt_bboxes = self.gt_bboxes_dict[ind] 
+        
         # 2. Resize image,bboxes to H,W
         ori_H, ori_W, _ = ori_img.shape
         img = misc.imresize(ori_img, (self.H,self.W,3))
@@ -25,10 +26,13 @@ class CustomDataset(data.Dataset):
         bboxes = np.array([[int(bbox[0]*xzoom), int(bbox[1]*yzoom), 
                             int(bbox[2]*xzoom), int(bbox[3]*yzoom)]
                   for bbox in gt_bboxes])
-        # 3. convert bboxes to target tensor
+        
+        # 3. image augmentation and transformation 
+        img, bboxes = utils.img_aug(img,bboxes)
+        
+        # 4. convert bboxes to target tensor
         target = utils.bboxes2tensor(bboxes, self.H, self.W)
-        # 4. Return image tensor, target tensor 
+        
         return img, target
     def __len__(self):
         return len(self.img_indexes)
-
