@@ -128,8 +128,9 @@ def img_aug(img, bboxes, max_scale = 0.2, max_saturation =0.1, max_exposure = 0.
     # adjust exposure 
     scale2 = np.random.uniform(1-max_exposure,1+max_exposure)
     img = np.power(img, scale2)
-    # adjust image value to [0,225]
-    img = np.array(img * 255., np.uint8)
+    # normalizer from pre-trained model on ImageNet
+    img -= np.array([0.485, 0.456, 0.406])
+    img /= np.array([0.229, 0.224, 0.225])
     return img, bboxes
 
 
