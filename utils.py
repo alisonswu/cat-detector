@@ -111,15 +111,20 @@ def img_aug(img, bboxes, max_scale = 0.2, max_saturation =0.1, max_exposure = 0.
     bboxes[:,[1,3]] -= crop_y
     bboxes = bboxes.astype(int)
     # threshold bounding boxes to be inside image 
-    bboxes[:,0][bboxes[:,0]<0] = 0
-    bboxes[:,1][bboxes[:,1]<0] = 0
+    bboxes[:,][bboxes[:,]<0] = 0
+    bboxes[:,0][bboxes[:,0]>w-1] = w-1
     bboxes[:,2][bboxes[:,2]>w-1] = w-1
-    bboxes[:,3][bboxes[:,3]>h-1] = h-1    
+    bboxes[:,1][bboxes[:,1]>h-1] = h-1 
+    bboxes[:,3][bboxes[:,3]>h-1] = h-1 
+    # delete bounding boxes outside of the cropped image
+    bboxes = bboxes[bboxes[:,0] != bboxes[:,2],:]
+    bboxes = bboxes[bboxes[:,1] != bboxes[:,3],:]
     # random horizontal flip 
     flip = random.choice([0,1])
     if flip: 
         img = np.fliplr(img)
-        bboxes[:,[2,0]] = w-1 - bboxes[:,[0,2]]  
+        if len(bboxes)>0:
+            bboxes[:,[2,0]] = w-1 - bboxes[:,[0,2]]  
     # scale image value to [0,1]
     img = img/255.0
     # adjust saturation
