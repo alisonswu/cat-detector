@@ -15,7 +15,7 @@ from model import Net, YOLOCriterion
 
 
 # data directory
-data_dir = 'VOC2012/'
+data_dir = 'data/VOCdevkit/VOC2012/'
 cat_trainval = np.loadtxt(data_dir + 'ImageSets/Main/cat_trainval.txt', dtype='string')
 
 # index of all cat images
@@ -51,10 +51,10 @@ trainloader = data.DataLoader(dataset=catdata, batch_size=2, shuffle=True, num_w
 # use pretrained resnet18 model and reset the last two layers
 resnet18 = models.resnet18(pretrained=True)  
 pretrained_model = nn.Sequential(*list(resnet18.children())[:-2])
-net = model.Net(pretrained_model)
+net = Net(pretrained_model)
 
 # set optimizer
-optimizer = optim.Adam(net.parameters(), lr=0.001, momentum=0.9, weight_decay=0.0005 )
+optimizer = optim.Adam(net.parameters(), lr=0.001, weight_decay=0.0005 )
 
 # check gpu availability 
 use_gpu = torch.cuda.is_available()
