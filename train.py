@@ -59,6 +59,11 @@ optimizer = optim.Adam(net.parameters(), lr=0.001, weight_decay=0.0005 )
 # check gpu availability 
 use_gpu = torch.cuda.is_available()
 
+if use_gpu:
+    net.cuda()
+
+net.train(True)
+
 # train the model 
 for epoch in range(2):  
     
@@ -68,6 +73,7 @@ for epoch in range(2):
     running_loss_w = 0.0
     running_loss_c = 0.0
     running_loss = 0.0
+    since = time.time()
 
     for i, batch in enumerate(trainloader):
         
@@ -99,19 +105,21 @@ for epoch in range(2):
         running_loss_c += loss_c.data[0]
         running_loss += loss.data[0]
 
-        # print losses after every 10 mini batches
-        if i % 10 == 0:    
-            print('[%2d, %3d] x: %.3f, y: %.3f, h: %.3f, w: %.3f, c: %.3f, sum: %.3f'%
-                  (epoch + 1, i + 1, running_loss_x / 10, running_loss_y / 10, running_loss_h / 10, running_loss_w / 10, running_loss_c / 10, running_loss / 10))
-            running_loss_x = 0.0
-            running_loss_y = 0.0
-            running_loss_h = 0.0
-            running_loss_w = 0.0
-            running_loss_c = 0.0
-            running_loss = 0.0
-    
+    time_elapsed = time.time() - since
+    n = len(catdata)
+    print('Elapsed: %.2f seconds' % (time_elapsed))
+    print('[epoch %3d] x: %.3f, y: %.3f, h: %.3f, w: %.3f, c: %.3f, sum: %.3f'%
+                  (epoch + 1, running_loss_x/n, running_loss_y/n, running_loss_h/n, running_loss_w/n, running_loss_c/n, running_loss/n))
+        
+    running_loss_x = 0.0
+    running_loss_y = 0.0
+    running_loss_h = 0.0
+    running_loss_w = 0.0
+    running_loss_c = 0.0
+    running_loss = 0.0
+    since = time.time()    
     # save model parameters after each epoch
-    torch.save(net.state_dict(), 'parameters_epoch' + epoch + '.pkl')
+    #torch.save(net.state_dict(), 'parameters_epoch' + epoch + '.pkl')
     
 print('Finished Training')
 
