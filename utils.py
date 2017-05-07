@@ -96,14 +96,14 @@ def img_aug(img, bboxes, max_scale = 0.2, max_saturation =0.05, max_exposure = 0
     img = img/255.0
 
     # 4. adjust saturation
-    if max_saturation>0:
-        scale1 = np.random.uniform(1-max_saturation,1+max_saturation,3)/(1+max_saturation)
-        img = img * scale1
+    #if max_saturation>0:
+    #    scale1 = np.random.uniform(1-max_saturation,1+max_saturation,3)/(1+max_saturation)
+    #    img = img * scale1
 
     # 5. adjust exposure 
-    if max_exposure>0:
-        scale2 = np.random.uniform(1-max_exposure,1+max_exposure)
-        img = np.power(img, scale2)
+    #if max_exposure>0:
+    #    scale2 = np.random.uniform(1-max_exposure,1+max_exposure)
+    #    img = np.power(img, scale2)
 
     # 6. normalizer from pre-trained model on ImageNet
     img -= np.array([0.485, 0.456, 0.406])
@@ -169,7 +169,7 @@ def view_cat(img, bboxes, H = 448, W = 448, cellsize = 64):
     cv2.waitKey(1)
 
 
-def view_predicted(image_name, net, c_threshold=0.2, overlap_threshold=0.5):
+def detect(image_name, net, c_threshold=0.2, overlap_threshold=0.5):
     ori_img = misc.imread(image_name)
     ori_H, ori_W, _ = ori_img.shape
     hzoom = float(ori_H)/448
@@ -181,13 +181,14 @@ def view_predicted(image_name, net, c_threshold=0.2, overlap_threshold=0.5):
     img = torch.FloatTensor(img).unsqueeze(0).permute(0,3,1,2)
     target = net(Variable(img)).data.numpy().squeeze()
     bboxes = tensor2bboxes(target, c_threshold, hzoom, wzoom)
-    print 'Num of bboxes: %i' % len(bboxes)
+    # print 'Num of bboxes: %i' % len(bboxes)
     nmsbboxes = NMS(bboxes, overlap_threshold)
-    print 'Num of bboxes after NMS: %i' % len(nmsbboxes)
+    # print 'Num of bboxes after NMS: %i' % len(nmsbboxes)
     cv2img = ori_img.copy()
     for bbox in nmsbboxes:
         cv2.rectangle(cv2img,(bbox[0], bbox[1]), (bbox[2], bbox[3]), (225,0,0), int(ori_H/200))
     plt.imshow(cv2img)
+    return nmsbboxes
 
 
 
