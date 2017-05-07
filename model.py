@@ -24,10 +24,6 @@ class Net(nn.Module):
 
 
 
-#------------------------------------------------------
-# loss function
-# output and target must be variables
-#---------------------------------------------------- 
 def YOLOCriterion(output, target, lambda_coord=5, lambda_obj=1, lambda_noobj=0.5):
     loss_x = torch.mul( target[:,:,:,4], (target[:,:,:,0] - output[:,:,:,0]).pow(2)).sum()
     loss_y = torch.mul( target[:,:,:,4], (target[:,:,:,1] - output[:,:,:,1]).pow(2)).sum()
@@ -37,3 +33,8 @@ def YOLOCriterion(output, target, lambda_coord=5, lambda_obj=1, lambda_noobj=0.5
     loss_c_obj = lambda_obj*(target[:,:,:,4]*loss_c).sum()
     loss_c_noobj = lambda_noobj*((1-target[:,:,:,4])*loss_c).sum()
     return loss_x, loss_y, loss_h, loss_w, loss_c_obj, loss_c_noobj
+
+
+resnet34 = models.resnet34(pretrained=False)
+pretrained_model = nn.Sequential(*list(resnet34.children())[:-2])
+catdetector = Net(pretrained_model)
