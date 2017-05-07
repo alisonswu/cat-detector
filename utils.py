@@ -16,25 +16,29 @@ def imgindex(data_dir, cls):
     return indexes[indexes[:,1]=='1',0]
 
 
-def tensor2bboxes(tensor, H = 448, W = 448, cellsize = 64):
-    bboxes_new = []
-    # find all cells with confidence 1 
-    cells = np.array(np.where(tensor[:,:,4] == 1))
+
+def tensor2bboxes(target, c_threshold, hzoom, wzoom, cellsize=64):
+    bboxes = []
+    H = target.shape[0]*cellsize
+    W = target.shape[1]*cellsize
+    cells = np.array(np.where(target[:,:,4] >= c_threshold))
     for col in range(cells.shape[1]):
         # cell position
         i,j =  cells[:,col]
-        x,y,h,w = tensor[i,j,:4]
-        # enter of bounding box 
+        x,y,h,w = target[i,j,:4]
+        # center of bounding box 
         cx = (j + x)* cellsize
         cy = (i + y)* cellsize
         # width, height of bounding box 
         bb_w = w*W
         bb_h = h*H
         # bounding box corner location 
-        bbox = [cx - bb_w/2, cy - bb_h/2, cx + bb_w/2, cy + bb_h/2 ]
-        bboxes_new.append(bbox)
-    bboxes_new = np.array(bboxes_new, dtype=np.uint16)
-    return bboxes_new
+        bbox = [max(cx - bb_w/2,0), max(cy - bb_h/2,0),
+                min(cx + bb_w/2,W), min(cy + bb_h/2,H)]
+        bboxes.append(bbox)
+    bboxes = np.array([[bbox[0]*wzoom, bbox[1]*hzoom, bbox[2]*wzoom, bbox[3]*hzoom]
+              for bbox in bboxes])
+    return bboxes
 
 
 def bboxes2tensor(bboxes, H=448, W=448, cellsize=64):
@@ -122,7 +126,7 @@ def unionbox(bboxes):
 
 def NMS(bboxes, overlap_threshold=0.5):
     if len(bboxes)==0:
-        return []
+        return np.array([])
     areas = (bboxes[:,2]-bboxes[:,0])*(bboxes[:,3]-bboxes[:,1])
     idxs = np.argsort(areas)
     selected_idx = []
