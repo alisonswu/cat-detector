@@ -173,7 +173,7 @@ def view_cat(img, bboxes, H = 448, W = 448, cellsize = 64):
     cv2.waitKey(1)
 
 
-def detect(image_name, net, c_threshold=0.2, overlap_threshold=0.5):
+def detect(image_name, net, c_threshold=0.5, overlap_threshold=0.5):
     ori_img = misc.imread(image_name)
     ori_H, ori_W, _ = ori_img.shape
     hzoom = float(ori_H)/448
@@ -192,7 +192,7 @@ def detect(image_name, net, c_threshold=0.2, overlap_threshold=0.5):
     for bbox in nmsbboxes:
         cv2.rectangle(cv2img,(bbox[0], bbox[1]), (bbox[2], bbox[3]), (225,0,0), int(ori_H/200))
     plt.imshow(cv2img)
-    return nmsbboxes
+    return nmsbboxes, cv2img
 
 
 

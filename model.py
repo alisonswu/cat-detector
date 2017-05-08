@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
+from torchvision import models
 
 class Net(nn.Module):
     def __init__(self, pretrained_model):
@@ -21,7 +22,6 @@ class Net(nn.Module):
         x = x.permute(0,2,3,1)
         x = (self.softsign(x) + 1)*0.5
         return x
-
 
 
 def YOLOCriterion(output, target, lambda_coord=5, lambda_obj=1, lambda_noobj=0.5):
