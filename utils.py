@@ -148,7 +148,7 @@ def NMS(bboxes, overlap_threshold=0.5):
 # plot resized img and bounding boxes, press any key to exit the image window
 def view_cat(img, bboxes, H = 448, W = 448, cellsize = 64):
     cv2img = img[:,:,::-1].copy()
-    col = (225,225,0)
+    col = (255,255,0)
 
     # 1. add grid lines 
     for i in range(0,W,cellsize):
@@ -173,7 +173,7 @@ def view_cat(img, bboxes, H = 448, W = 448, cellsize = 64):
     cv2.waitKey(1)
 
 
-def detect(image_name, net, c_threshold=0.5, overlap_threshold=0.5):
+def detect(image_name, net, c_threshold=0.5, overlap_threshold=0.5, showgrid=False):
     ori_img = misc.imread(image_name)
     ori_H, ori_W, _ = ori_img.shape
     hzoom = float(ori_H)/448
@@ -185,14 +185,25 @@ def detect(image_name, net, c_threshold=0.5, overlap_threshold=0.5):
     img = torch.FloatTensor(img).unsqueeze(0).permute(0,3,1,2)
     target = net(Variable(img)).data.numpy().squeeze()
     bboxes = tensor2bboxes(target, c_threshold, hzoom, wzoom)
-    # print 'Num of bboxes: %i' % len(bboxes)
     nmsbboxes = NMS(bboxes, overlap_threshold)
-    # print 'Num of bboxes after NMS: %i' % len(nmsbboxes)
-    cv2img = ori_img.copy()
-    for bbox in nmsbboxes:
-        cv2.rectangle(cv2img,(bbox[0], bbox[1]), (bbox[2], bbox[3]), (225,0,0), int(ori_H/200))
+    if not showgrid:
+        cv2img = ori_img.copy()
+        for bbox in nmsbboxes:
+            cv2.rectangle(cv2img,(bbox[0], bbox[1]), (bbox[2], bbox[3]), (255,0,0), thickness=int(ori_H/150))
+    else:
+        cv2img = misc.imresize(ori_img, (448,448,3)).copy()
+        for i in range(0, 448, 64):
+            cv2.line(cv2img, (i,0),(i,448), (255,255,255), thickness=2)
+        for j in range(0, 448, 64):
+            cv2.line(cv2img, (0,j),(448,j), (255,255,255), thickness=2)
+        bboxes = tensor2bboxes(target, c_threshold, 1.0, 1.0)
+        bboxes = NMS(bboxes, overlap_threshold)
+        for bbox in bboxes:
+            cv2.rectangle(cv2img,(bbox[0], bbox[1]), (bbox[2], bbox[3]), (255,0,0), thickness=3)
+        cv2.line(cv2img, (bbox[0],bbox[1]),(bbox[2], bbox[3]), (255,0,0), thickness=3)
+        cv2.line(cv2img, (bbox[0],bbox[3]),(bbox[2], bbox[1]), (255,0,0), thickness=3)
     plt.imshow(cv2img)
-    return nmsbboxes, cv2img
+    return nmsbboxes
 
 
 
